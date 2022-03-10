@@ -12,6 +12,7 @@ pygame.display.set_caption("space 99")
 icon = pygame.image.load("data/imgs/icon.png")
 pygame.display.set_icon(icon)
 
+# ----- properties
 alien_cooldown = 300
 last_alien_shot = pygame.time.get_ticks()
 
@@ -113,6 +114,7 @@ class Alien_Bullets(pygame.sprite.Sprite):
 
 spaceship = Spaceship(int(screen_w / 2), screen_h - 100, 3)
 
+# ----- groups
 spaceship_group = pygame.sprite.Group()
 bullet_group = pygame.sprite.Group()
 alien_group = pygame.sprite.Group()
