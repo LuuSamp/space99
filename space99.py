@@ -4,6 +4,13 @@ import random
 # ----- fps
 clock = pygame.time.Clock()
 
+arrows = [
+    pygame.K_DOWN,
+    pygame.K_UP,
+    pygame.K_RIGHT,
+    pygame.K_LEFT
+]
+
 # ----- screen
 screen_w = 400
 screen_h = 600
@@ -27,33 +34,31 @@ class Spaceship(pygame.sprite.Sprite):
         self.health_start = health
         self.health_remaining = health
         self.last_shot = pygame.time.get_ticks()
+        self.speed = 6
+        self.cooldown = 500
 
-    def update(self):
-
-        # ----- movement
-        speed = 6
-
-        key = pygame.key.get_pressed()
+    def move(self, key):
         if key[pygame.K_LEFT] and self.rect.left > 10:
-            self.rect.x -= speed
+            self.rect.x -= self.speed
         if key[pygame.K_RIGHT] and self.rect.right < screen_w - 10:
-            self.rect.x += speed
+            self.rect.x += self.speed
         if key[pygame.K_UP] and self.rect.y > screen_h - 100:
-            self.rect.y -= speed / 5
+            self.rect.y -= self.speed / 5
         if key[pygame.K_DOWN] and self.rect.y < screen_h - 60:
-            self.rect.y += speed
+            self.rect.y += self.speed
 
-        # ----- bullets & cooldown
-        cooldown = 500
+    def shoot(self):
         time_now = pygame.time.get_ticks()
 
-        if key[pygame.K_SPACE] and time_now - self.last_shot > cooldown:
+        if time_now - self.last_shot > self.cooldown:
             bullet = Spaceship_Bullets(self.rect.centerx, self.rect.top)
             bullet_group.add(bullet)
             self.last_shot = time_now
 
+    def update(self):
+        
         self.mask = pygame.mask.from_surface(self.image)
-
+        
         # ----- health
         pygame.draw.rect(screen, (99, 99, 99), (self.rect.x, (self.rect.y + 40),
                          int(self.rect.width * (self.health_remaining / self.health_start)), 8))
@@ -102,6 +107,7 @@ class Alien_Bullets(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image, (16, 16))
         self.rect = self.image.get_rect()
         self.rect.center = [x, y]
+    # def __init__()
 
     def update(self):
         self.rect.y += 3
@@ -110,7 +116,22 @@ class Alien_Bullets(pygame.sprite.Sprite):
         if pygame.sprite.spritecollide(self, spaceship_group, False, pygame.sprite.collide_mask):
             self.kill()
             spaceship.health_remaining -= 1
+    # def update()
 
+# class Alien_Bullets
+
+def handle_pressed_key(key, spaceship):
+    spaceship.move(key)
+    if key[pygame.K_SPACE]:
+        spaceship.shoot()
+# def handle_pressed_key()
+
+def create_aliens(alien_group):
+    for row in range(6):
+        for entity in range(5):
+            alien = Aliens(80 + 48 * row, 24 + 40 * entity)
+            alien_group.add(alien)
+# def create_aliens()
 
 spaceship = Spaceship(int(screen_w / 2), screen_h - 100, 3)
 
@@ -122,20 +143,14 @@ alien_bullet_group = pygame.sprite.Group()
 
 spaceship_group.add(spaceship)
 
+create_aliens(alien_group)
 
-def create_aliens():
-    for row in range(6):
-        for entity in range(5):
-            alien = Aliens(80 + 48 * row, 24 + 40 * entity)
-            alien_group.add(alien)
-
-
-create_aliens()
-
-
-while True:
+while spaceship.alive:
 
     time_now = pygame.time.get_ticks()
+    key_pressed = pygame.key.get_pressed()
+    
+    handle_pressed_key(key_pressed, spaceship)
 
     if time_now - last_alien_shot > alien_cooldown and len(alien_bullet_group) < 5 and len(alien_group) > 0:
         attacking_alien = random.choice(alien_group.sprites())
@@ -147,12 +162,12 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
+            exit()
 
     screen.fill((255, 255, 255))
 
     # ----- update
     spaceship.update()
-
     bullet_group.update()
     alien_group.update()
     alien_bullet_group.update()
