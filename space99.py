@@ -58,7 +58,7 @@ class Spaceship(pygame.sprite.Sprite):
         # ----- health
         pygame.draw.rect(screen, (99, 99, 99), (self.rect.x, (self.rect.y + 40),
                          int(self.rect.width * (self.health_remaining / self.health_start)), 8))
-
+# class Spaceship()
 
 class Spaceship_Bullets(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -72,9 +72,7 @@ class Spaceship_Bullets(pygame.sprite.Sprite):
         self.rect.y -= 5
         if self.rect.bottom < 0:
             self.kill()
-        if pygame.sprite.spritecollide(self, alien_group, True):
-            self.kill()
-
+# class Spaceship_bullets()
 
 class Aliens(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -94,7 +92,7 @@ class Aliens(pygame.sprite.Sprite):
         if abs(self.move_counter) > 54:
             self.move_direction *= -1
             self.move_counter *= self.move_direction
-
+# class Aliens()
 
 class Alien_Bullets(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -109,18 +107,12 @@ class Alien_Bullets(pygame.sprite.Sprite):
         self.rect.y += 3
         if self.rect.bottom > SCREEN_HEIGHT:
             self.kill()
-        if pygame.sprite.spritecollide(self, spaceship_group, False, pygame.sprite.collide_mask):
-            self.kill()
-            spaceship.health_remaining -= 1
-    # def update()
-
 # class Alien_Bullets
 
 def handle_pressed_key(key, spaceship):
     spaceship.move(key)
     if key[pygame.K_SPACE]:
         spaceship.shoot()
-
 # def handle_pressed_key()
 
 def create_aliens(alien_group):
@@ -128,8 +120,18 @@ def create_aliens(alien_group):
         for entity in range(5):
             alien = Aliens(80 + 48 * row, 24 + 40 * entity)
             alien_group.add(alien)
-
 # def create_aliens()
+
+def spaceship_collide(spaceship, alien_bullets):
+    for bullet in pygame.sprite.spritecollide(spaceship, alien_bullets, True):
+        spaceship.health_remaining -= 1
+# spaceship_collide()
+
+def alien_collide(aliens, bullets):
+    for bullet in bullets.sprites():
+        for alien in pygame.sprite.spritecollide(bullet, aliens, True):
+            bullet.kill()
+# alien_collide()
 
 spaceship = Spaceship(int(SCREEN_WIDTH / 2), SCREEN_HEIGHT - 100, 3)
 
@@ -170,6 +172,10 @@ while spaceship.alive():
     alien_group.update()
     alien_bullet_group.update()
 
+    # Handling collisions
+    spaceship_collide(spaceship, alien_bullet_group)
+    alien_collide(alien_group, bullet_group)
+
     # ----- draw
     spaceship_group.draw(screen)
     bullet_group.draw(screen)
@@ -178,5 +184,4 @@ while spaceship.alive():
 
     pygame.display.update()
     clock.tick(60)
-
 # while spaceship.alive()
