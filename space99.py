@@ -4,13 +4,6 @@ import random
 # ----- fps
 clock = pygame.time.Clock()
 
-arrows = [
-    pygame.K_DOWN,
-    pygame.K_UP,
-    pygame.K_RIGHT,
-    pygame.K_LEFT
-]
-
 # ----- screen
 screen_w = 400
 screen_h = 600
@@ -149,7 +142,7 @@ while spaceship.alive:
 
     time_now = pygame.time.get_ticks()
     key_pressed = pygame.key.get_pressed()
-    
+
     handle_pressed_key(key_pressed, spaceship)
 
     if time_now - last_alien_shot > alien_cooldown and len(alien_bullet_group) < 5 and len(alien_group) > 0:
