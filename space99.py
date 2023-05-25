@@ -1,19 +1,22 @@
 import pygame
 import random
 
+# Game Constants
+SCREEN_WIDTH = 400
+SCREEN_HEIGHT = 600
+ALIEN_COOLDOWN = 300
+MAX_ALIEN_BULLETS = 5
+
 # ----- fps
 clock = pygame.time.Clock()
 
 # ----- screen
-screen_w = 400
-screen_h = 600
-screen = pygame.display.set_mode((screen_w, screen_h))
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("space 99")
 icon = pygame.image.load("data/imgs/icon.png")
 pygame.display.set_icon(icon)
 
 # ----- properties
-alien_cooldown = 300
 last_alien_shot = pygame.time.get_ticks()
 
 
@@ -33,11 +36,11 @@ class Spaceship(pygame.sprite.Sprite):
     def move(self, key):
         if key[pygame.K_LEFT] and self.rect.left > 10:
             self.rect.x -= self.speed
-        if key[pygame.K_RIGHT] and self.rect.right < screen_w - 10:
+        if key[pygame.K_RIGHT] and self.rect.right < SCREEN_WIDTH - 10:
             self.rect.x += self.speed
-        if key[pygame.K_UP] and self.rect.y > screen_h - 100:
+        if key[pygame.K_UP] and self.rect.y > SCREEN_HEIGHT - 100:
             self.rect.y -= self.speed / 5
-        if key[pygame.K_DOWN] and self.rect.y < screen_h - 60:
+        if key[pygame.K_DOWN] and self.rect.y < SCREEN_HEIGHT - 60:
             self.rect.y += self.speed
 
     def shoot(self):
@@ -104,7 +107,7 @@ class Alien_Bullets(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.y += 3
-        if self.rect.bottom > screen_h:
+        if self.rect.bottom > SCREEN_HEIGHT:
             self.kill()
         if pygame.sprite.spritecollide(self, spaceship_group, False, pygame.sprite.collide_mask):
             self.kill()
@@ -117,6 +120,7 @@ def handle_pressed_key(key, spaceship):
     spaceship.move(key)
     if key[pygame.K_SPACE]:
         spaceship.shoot()
+
 # def handle_pressed_key()
 
 def create_aliens(alien_group):
@@ -124,9 +128,10 @@ def create_aliens(alien_group):
         for entity in range(5):
             alien = Aliens(80 + 48 * row, 24 + 40 * entity)
             alien_group.add(alien)
+
 # def create_aliens()
 
-spaceship = Spaceship(int(screen_w / 2), screen_h - 100, 3)
+spaceship = Spaceship(int(SCREEN_WIDTH / 2), SCREEN_HEIGHT - 100, 3)
 
 # ----- groups
 spaceship_group = pygame.sprite.Group()
@@ -138,14 +143,14 @@ spaceship_group.add(spaceship)
 
 create_aliens(alien_group)
 
-while spaceship.alive:
+while spaceship.alive():
 
     time_now = pygame.time.get_ticks()
     key_pressed = pygame.key.get_pressed()
 
     handle_pressed_key(key_pressed, spaceship)
 
-    if time_now - last_alien_shot > alien_cooldown and len(alien_bullet_group) < 5 and len(alien_group) > 0:
+    if time_now - last_alien_shot > ALIEN_COOLDOWN and len(alien_bullet_group) < MAX_ALIEN_BULLETS and len(alien_group) > 0:
         attacking_alien = random.choice(alien_group.sprites())
         alien_bullet = Alien_Bullets(
             attacking_alien.rect.centerx, attacking_alien.rect.bottom)
@@ -173,3 +178,5 @@ while spaceship.alive:
 
     pygame.display.update()
     clock.tick(60)
+
+# while spaceship.alive()
